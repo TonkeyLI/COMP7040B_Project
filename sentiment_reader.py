@@ -1,5 +1,6 @@
 import codecs
 import numpy as np
+import csv
 
 class SentimentCorpus:
     
@@ -9,23 +10,31 @@ class SentimentCorpus:
         1) build feature dictionaries
         2) split data into train/dev/test sets 
         '''
-        X, y, feat_dict, feat_counts = build_dicts()
+        X, y, feat_dict, feat_counts, X_NH = build_dicts()
         self.nr_instances = y.shape[0]
         self.nr_features = X.shape[1]
         self.X = X
         self.y = y
         self.feat_dict = feat_dict
         self.feat_counts = feat_counts
-        
-        train_y, dev_y, test_y, train_X, dev_X, test_X = split_train_dev_test(self.X, self.y, train_per, dev_per, test_per)
+        self.X_NH = X_NH
+        # print(self.nr_instances)
+        # print(self.nr_features)
+        # print(self.X)
+        # print(self.y)
+        # print(self.X_NH)
+
+        train_y, dev_y, test_y, train_X, dev_X, test_X, train_X_NH, test_X_NH = split_train_dev_test(self, self.X, self.y, self.X_NH, train_per, dev_per, test_per)
         self.train_X = train_X
         self.train_y = train_y
         self.dev_X = dev_X
         self.dev_y = dev_y
         self.test_X = test_X
         self.test_y = test_y
+        self.train_X_NH = train_X_NH
+        self.test_X_NH = test_X_NH
 
-def split_train_dev_test(X, y, train_per, dev_per, test_per):
+def split_train_dev_test(self, X, y, X_NH, train_per, dev_per, test_per):
     if (train_per + dev_per + test_per) > 1:
         print ("train/dev/test splits should sum to one")
         return
@@ -38,6 +47,9 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         train_X = X[0:split1,:]
         test_X = X[split1:,:]
         dev_X = np.array([])
+        train_X_NH = X_NH[0:split1]
+        test_X_NH = X_NH[split1:]
+        dev_X_NH = np.array([])     
     else:
         split2 = int(dim*(train_per+dev_per))
         train_y,dev_y,test_y = np.vsplit(y,(split1,split2))
@@ -45,7 +57,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         dev_X = X[split1:split2,:]
         test_X = X[split2:,:]
         
-    return train_y,dev_y,test_y,train_X,dev_X,test_X
+    return train_y,dev_y,test_y,train_X,dev_X,test_X,train_X_NH,test_X_NH
 
 def build_dicts():
     '''
@@ -55,19 +67,23 @@ def build_dicts():
 
     # build feature dictionary with counts
     nr_pos = 0
-    with codecs.open("positive.review", 'r', 'utf8') as pos_file:
+    with codecs.open("twitter_positive.csv") as f:
+        pos_file = csv.reader(f)
+        headers = next(pos_file)
         for line in pos_file:
             nr_pos += 1
-            toks = line.split(" ")
-            for feat in toks[0:-1]:
+            for feat in line[0:-1]:
                 name, counts = feat.split(":")
                 if name not in feat_counts:
                     feat_counts[name] = 0
                 feat_counts[name] += int(counts)
     
     nr_neg = 0
-    with codecs.open("negative.review", 'r', 'utf8') as neg_file:
+    with codecs.open("twitter_negtive.csv") as f:
+        neg_file = csv.reader(f)
+        headers = next(neg_file)
         for line in neg_file:
+            line = " ".join(line)
             nr_neg += 1
             toks = line.split(" ")
             for feat in toks[0:-1]:
@@ -77,12 +93,12 @@ def build_dicts():
                 feat_counts[name] += int(counts)
 
     # remove all features that occur less than 5 (threshold) times
-    to_remove = []
-    for key, value in feat_counts.items():
-        if value < 5:
-            to_remove.append(key)
-    for key in to_remove:
-        del feat_counts[key]
+    # to_remove = []
+    # for key, value in feat_counts.items():
+    #     if value < 5:
+    #         to_remove.append(key)
+    # for key in to_remove:
+    #     del feat_counts[key]
 
     # map feature to index
     feat_dict = {}
@@ -95,11 +111,14 @@ def build_dicts():
     nr_instances = nr_pos + nr_neg
     X = np.zeros((nr_instances, nr_feat), dtype=float)
     y = np.vstack((np.zeros([nr_pos,1], dtype=int), np.ones([nr_neg,1], dtype=int)))
+    X_NH = np.empty(())
     
-    
-    with codecs.open("positive.review", 'r', 'utf8') as pos_file:
+    with codecs.open("twitter_positive.csv") as f:
+        pos_file = csv.reader(f)
+        headers = next(pos_file)
         nr_pos = 0
         for line in pos_file:
+            line = " ".join(line)
             toks = line.split(" ")
             for feat in toks[0:-1]:
                 name, counts = feat.split(":")
@@ -107,9 +126,12 @@ def build_dicts():
                     X[nr_pos,feat_dict[name]] = int(counts)
             nr_pos += 1
         
-    with codecs.open("negative.review", 'r', 'utf8') as neg_file:
+    with codecs.open("twitter_negtive.csv") as f:
+        neg_file = csv.reader(f)
+        headers = next(neg_file)
         nr_neg = 0
         for line in neg_file:
+            line = " ".join(line)
             toks = line.split(" ")
             for feat in toks[0:-1]:
                 name, counts = feat.split(":")
@@ -117,14 +139,38 @@ def build_dicts():
                     X[nr_pos+nr_neg,feat_dict[name]] = int(counts)
             nr_neg += 1
     
+    X_NH = []
+    with codecs.open("test_positive.csv") as f:
+        pos_file = csv.reader(f)
+        headers = next(pos_file)
+        for line in pos_file:
+            line = " ".join(line)
+            toks = line.split(" ")
+            X_NH.append(toks)
+
+    with codecs.open("test_negtive.csv") as f:
+        neg_file = csv.reader(f)
+        headers = next(neg_file)
+        for line in neg_file:
+            line = " ".join(line)
+            toks = line.split(" ")
+            X_NH.append(toks)
+
     # shuffle the order, mix positive and negative examples
     new_order = np.arange(nr_instances)
     np.random.seed(0) # set seed
     np.random.shuffle(new_order)
     X = X[new_order,:]
     y = y[new_order,:]
-    
-    return X, y, feat_dict, feat_counts
+    X_NH = [X_NH[i] for i in new_order]
+    # for i in range(len(X[0])):
+    #     if X[0][i] > 0:
+    #         print(list (feat_dict.keys()) [list (feat_dict.values()).index (i)])
+
+    # #print(X[0])
+    # #print(y[0])
+    # print(X_NH[0])
+    return X, y, feat_dict, feat_counts, X_NH
 
 
 
