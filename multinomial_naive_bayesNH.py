@@ -71,9 +71,10 @@ class MultinomialNaiveBayesNH:
             if tweet[i] in self.word_index:
                 f = self.occur_count[self.word_index[tweet[i]]][c]
                 if i > 0 and tweet[i-1] in self.NW:
-                   p -= (float(f)+1)/(float(self.count[c])+self.n_words)
+                    
+                    p -= (float(f)+1)/(float(self.count[c])+self.n_words)
                 else:
-                   p += (float(f)+1)/(float(self.count[c])+self.n_words)
+                    p += (float(f)+1)/(float(self.count[c])+self.n_words)
         return p * self.prior[c]
 
     def evaluate(self, truth, predicted):
