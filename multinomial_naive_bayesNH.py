@@ -6,6 +6,7 @@ class MultinomialNaiveBayesNH:
 
     def __init__(self):
         self.trained = False
+        self.n_words = 0
         self.prior = 0 # num of tweets of class c / total num of tweets
         self.count = 0 # total num of unique words of a class 
         self.occur_count = 0 #shape(num of unique words, num of class) num of occurrences of a word in class c
@@ -14,7 +15,6 @@ class MultinomialNaiveBayesNH:
         self.test_data = 0
 
     def train(self, x, y, feat_dict):
-        # to do 
         # n_docs = no. of documents
         # n_words = no. of unique words    
         n_docs, n_words = x.shape
@@ -31,8 +31,8 @@ class MultinomialNaiveBayesNH:
         count = np.zeros(n_classes)
         occur_count = np.zeros((n_words, n_classes))
 
-        prior[0] = np.count_nonzero(y==0) / n_docs   # negative class (y=0) = positive review
-        prior[1] = np.count_nonzero(y==1) / n_docs   # positive class (y=1) = negative review
+        prior[0] = np.count_nonzero(y==0) / (float)(n_docs)   # negative class (y=0) = positive review
+        prior[1] = np.count_nonzero(y==1) / (float)(n_docs) # positive class (y=1) = negative review
 
         for j in range(n_words):
             for i in range(n_docs):
@@ -47,6 +47,7 @@ class MultinomialNaiveBayesNH:
             lines = [line[0:len(line)-2] for line in lines]
 
         self.trained = True
+        self.n_words = n_words
         self.prior = prior
         self.count = count
         self.occur_count = occur_count
@@ -67,13 +68,13 @@ class MultinomialNaiveBayesNH:
     def calculate(self, tweet, c):
         p = 0
         for i in range(len(tweet)):
-            if(tweet[i] in self.word_index):
+            if tweet[i] in self.word_index:
                 f = self.occur_count[self.word_index[tweet[i]]][c]
                 if i > 0 and tweet[i-1] in self.NW:
-                    p -= f/self.count[c]
+                    p -= (float(f)+1)/(float(self.count[c])+self.n_words)
                 else:
-                    p += f/self.count[c]
-        return p
+                    p += (float(f)+1)/(float(self.count[c])+self.n_words)
+        return p * self.prior(c)
 
     def evaluate(self, truth, predicted):
         correct = 0.0

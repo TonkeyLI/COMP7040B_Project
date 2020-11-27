@@ -59,7 +59,7 @@ def build_dicts():
     builds feature dictionaries
     ''' 
     #set the test size
-    test_size = 5000
+    test_size = 1000
     feat_counts = {}
     col_list = ["tweet"]
     files_to_red = ["twitter_improve_positive.csv", "twitter_improve_negative.csv", "test_improve_positive.csv", "test_improve_negative.csv"]
@@ -69,7 +69,7 @@ def build_dicts():
     for line in pos_file["tweet"]:
         toks = line.split(" ")
         nr_pos += 1
-        if nr_pos >= 5000:
+        if nr_pos >= test_size:
             break
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
@@ -82,7 +82,7 @@ def build_dicts():
     for line in pos_file["tweet"]:
         toks = line.split(" ")
         nr_neg += 1
-        if nr_neg >= 5000:
+        if nr_neg >= test_size:
             break
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
@@ -118,7 +118,7 @@ def build_dicts():
     pos_file = pd.read_csv(files_to_red[0], usecols=col_list)
     nr_pos = 0
     for line in pos_file["tweet"]:
-        if nr_pos >= 5000:
+        if nr_pos >= test_size:
             break
         toks = line.split(" ")
         for feat in toks[0:-1]:
@@ -130,7 +130,7 @@ def build_dicts():
     neg_file = pd.read_csv(files_to_red[1], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
-        if nr_neg >= 5000:
+        if nr_neg >= test_size:
             break
         toks = line.split(" ")
         for feat in toks[0:-1]:
@@ -145,7 +145,7 @@ def build_dicts():
     nr_pos = 0
     for line in pos_file["tweet"]:
         #print(line)
-        if nr_pos >= 5000:
+        if nr_pos >= test_size:
             break
         toks = str(line).split(" ")
         X_NH.append(toks)
@@ -154,7 +154,7 @@ def build_dicts():
     neg_file = pd.read_csv(files_to_red[3], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
-        if nr_neg >= 5000:
+        if nr_neg >= test_size:
             break
         toks = str(line).split(" ")
         X_NH.append(toks)
@@ -168,10 +168,10 @@ def build_dicts():
     y = y[new_order,:]
     X_NH = [X_NH[i] for i in new_order]
     #print(X[0])
-    for i in range(len(X[0])):
-        if X[0][i] > 0:
-            print(list (feat_dict.keys()) [list (feat_dict.values()).index (i)])
-    print(X_NH[0])
+    # for i in range(len(X[0])):
+    #     if X[0][i] > 0:
+    #         print(list (feat_dict.keys()) [list (feat_dict.values()).index (i)])
+    # print(X_NH[0])
     return X, y, feat_dict, feat_counts, X_NH
 
 
