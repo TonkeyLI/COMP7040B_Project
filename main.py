@@ -9,22 +9,25 @@ from package_model import Package_model
 
 if __name__ == '__main__':
 
-    print("Train using package")
-    Package_model.train_test()
+    #print("Train using package")
+    #Package_model.train_test()
 
+    print("load dataset")
     dataset = SentimentCorpus() # to do
 
+    print("\n=======================================================\n")
+    print("+++ Naive Bayes +++")
     nb = MultinomialNaiveBayes()
-    
+    print("Model created")
     params = nb.train(dataset.train_X, dataset.train_y)
+    print("train completed")
     
     predict_train = nb.test(dataset.train_X, params)
     eval_train = nb.evaluate(predict_train, dataset.train_y)
+    print("Evaluate train completed")
     
     predict_test = nb.test(dataset.test_X, params)
     eval_test = nb.evaluate(predict_test, dataset.test_y)
-    print("\n=======================================================\n")
-    print("+++ Naive Bayes +++")
     print("Accuracy on training data = %f \nAccuracy on testing data = %f" % (eval_train, eval_test))
     print("Confusion Matrix:")
     print(confusion_matrix(dataset.test_y,predict_test))

@@ -1,6 +1,6 @@
-import codecs
 import numpy as np
 import csv
+import pandas as pd
 
 class SentimentCorpus:
     
@@ -18,11 +18,6 @@ class SentimentCorpus:
         self.feat_dict = feat_dict
         self.feat_counts = feat_counts
         self.X_NH = X_NH
-        # print(self.nr_instances)
-        # print(self.nr_features)
-        # print(self.X)
-        # print(self.y)
-        # print(self.X_NH)
 
         train_y, dev_y, test_y, train_X, dev_X, test_X, train_X_NH, test_X_NH = split_train_dev_test(self, self.X, self.y, self.X_NH, train_per, dev_per, test_per)
         self.train_X = train_X
@@ -63,34 +58,37 @@ def build_dicts():
     '''
     builds feature dictionaries
     ''' 
+    #set the test size
+    test_size = 5000
     feat_counts = {}
-
+    col_list = ["tweet"]
+    files_to_red = ["twitter_improve_positive.csv", "twitter_improve_negative.csv", "test_improve_positive.csv", "test_improve_negative.csv"]
     # build feature dictionary with counts
     nr_pos = 0
-    with codecs.open("twitter_positive.csv") as f:
-        pos_file = csv.reader(f)
-        headers = next(pos_file)
-        for line in pos_file:
-            nr_pos += 1
-            for feat in line[0:-1]:
-                name, counts = feat.split(":")
-                if name not in feat_counts:
-                    feat_counts[name] = 0
-                feat_counts[name] += int(counts)
+    pos_file = pd.read_csv(files_to_red[0], usecols=col_list)
+    for line in pos_file["tweet"]:
+        toks = line.split(" ")
+        nr_pos += 1
+        if nr_pos >= 5000:
+            break
+        for feat in toks[0:-1]:
+            name, counts = feat.split(":")
+            if name not in feat_counts:
+                feat_counts[name] = 0
+            feat_counts[name] += int(counts)
     
     nr_neg = 0
-    with codecs.open("twitter_negtive.csv") as f:
-        neg_file = csv.reader(f)
-        headers = next(neg_file)
-        for line in neg_file:
-            line = " ".join(line)
-            nr_neg += 1
-            toks = line.split(" ")
-            for feat in toks[0:-1]:
-                name, counts = feat.split(":")
-                if name not in feat_counts:
-                    feat_counts[name] = 0
-                feat_counts[name] += int(counts)
+    neg_file = pd.read_csv(files_to_red[1], usecols=col_list)
+    for line in pos_file["tweet"]:
+        toks = line.split(" ")
+        nr_neg += 1
+        if nr_neg >= 5000:
+            break
+        for feat in toks[0:-1]:
+            name, counts = feat.split(":")
+            if name not in feat_counts:
+                feat_counts[name] = 0
+            feat_counts[name] += int(counts)
 
     # remove all features that occur less than 5 (threshold) times
     # to_remove = []
@@ -112,49 +110,55 @@ def build_dicts():
     X = np.zeros((nr_instances, nr_feat), dtype=float)
     y = np.vstack((np.zeros([nr_pos,1], dtype=int), np.ones([nr_neg,1], dtype=int)))
     X_NH = np.empty(())
+    # print("nr_feat:", nr_feat)
+    # print("nr_instances:", nr_instances)
+    # print("X:", X.shape)
+    # print("y:", y.shape)
+
+    pos_file = pd.read_csv(files_to_red[0], usecols=col_list)
+    nr_pos = 0
+    for line in pos_file["tweet"]:
+        if nr_pos >= 5000:
+            break
+        toks = line.split(" ")
+        for feat in toks[0:-1]:
+            name, counts = feat.split(":")
+            if name in feat_dict:
+                X[nr_pos,feat_dict[name]] = int(counts)
+        nr_pos += 1
     
-    with codecs.open("twitter_positive.csv") as f:
-        pos_file = csv.reader(f)
-        headers = next(pos_file)
-        nr_pos = 0
-        for line in pos_file:
-            line = " ".join(line)
-            toks = line.split(" ")
-            for feat in toks[0:-1]:
-                name, counts = feat.split(":")
-                if name in feat_dict:
-                    X[nr_pos,feat_dict[name]] = int(counts)
-            nr_pos += 1
-        
-    with codecs.open("twitter_negtive.csv") as f:
-        neg_file = csv.reader(f)
-        headers = next(neg_file)
-        nr_neg = 0
-        for line in neg_file:
-            line = " ".join(line)
-            toks = line.split(" ")
-            for feat in toks[0:-1]:
-                name, counts = feat.split(":")
-                if name in feat_dict:
-                    X[nr_pos+nr_neg,feat_dict[name]] = int(counts)
-            nr_neg += 1
+    neg_file = pd.read_csv(files_to_red[1], usecols=col_list)
+    nr_neg = 0
+    for line in neg_file["tweet"]:
+        if nr_neg >= 5000:
+            break
+        toks = line.split(" ")
+        for feat in toks[0:-1]:
+            name, counts = feat.split(":")
+            if name in feat_dict:
+                X[nr_pos+nr_neg,feat_dict[name]] = int(counts)
+        nr_neg += 1
     
     X_NH = []
-    with codecs.open("test_positive.csv") as f:
-        pos_file = csv.reader(f)
-        headers = next(pos_file)
-        for line in pos_file:
-            line = " ".join(line)
-            toks = line.split(" ")
-            X_NH.append(toks)
 
-    with codecs.open("test_negtive.csv") as f:
-        neg_file = csv.reader(f)
-        headers = next(neg_file)
-        for line in neg_file:
-            line = " ".join(line)
-            toks = line.split(" ")
-            X_NH.append(toks)
+    pos_file = pd.read_csv(files_to_red[2], usecols=col_list)
+    nr_pos = 0
+    for line in pos_file["tweet"]:
+        #print(line)
+        if nr_pos >= 5000:
+            break
+        toks = str(line).split(" ")
+        X_NH.append(toks)
+        nr_pos += 1
+
+    neg_file = pd.read_csv(files_to_red[3], usecols=col_list)
+    nr_neg = 0
+    for line in neg_file["tweet"]:
+        if nr_neg >= 5000:
+            break
+        toks = str(line).split(" ")
+        X_NH.append(toks)
+        nr_neg += 1
 
     # shuffle the order, mix positive and negative examples
     new_order = np.arange(nr_instances)
@@ -163,13 +167,11 @@ def build_dicts():
     X = X[new_order,:]
     y = y[new_order,:]
     X_NH = [X_NH[i] for i in new_order]
-    # for i in range(len(X[0])):
-    #     if X[0][i] > 0:
-    #         print(list (feat_dict.keys()) [list (feat_dict.values()).index (i)])
-
-    # #print(X[0])
-    # #print(y[0])
-    # print(X_NH[0])
+    #print(X[0])
+    for i in range(len(X[0])):
+        if X[0][i] > 0:
+            print(list (feat_dict.keys()) [list (feat_dict.values()).index (i)])
+    print(X_NH[0])
     return X, y, feat_dict, feat_counts, X_NH
 
 
