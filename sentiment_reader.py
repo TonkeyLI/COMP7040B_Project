@@ -59,7 +59,7 @@ def build_dicts():
     builds feature dictionaries
     ''' 
     #set the test size
-    test_size = 1000
+    test_size = 14000
     feat_counts = {}
     col_list = ["tweet"]
     files_to_red = ["twitter_improve_positive.csv", "twitter_improve_negative.csv", "test_improve_positive.csv", "test_improve_negative.csv"]
