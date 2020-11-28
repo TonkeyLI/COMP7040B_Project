@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-
+import json
 class MultinomialNaiveBayesNH:
 
     def __init__(self):
@@ -40,7 +40,7 @@ class MultinomialNaiveBayesNH:
         #         count[y[i][0]] += x[i][j]
         #         occur_count[j][y[i][0]] += x[i][j]
         
-        prior = np.array([ 0.0 for i in range(n_classes)])
+        prior = [0, 0]
         prior[0] = np.count_nonzero(y==0) / float(n_docs)   
         prior[1] = np.count_nonzero(y==1) / float(n_docs) 
 
@@ -51,7 +51,7 @@ class MultinomialNaiveBayesNH:
             elif y[i] == 1:
                 occur_count[1] += x[i]
 
-        count = np.zeros(n_classes)
+        count = [0, 0]
         for j in range(n_classes):
             count[j] = np.sum(occur_count[j])
 
@@ -59,7 +59,7 @@ class MultinomialNaiveBayesNH:
 
         #load negation words
         lines = []
-        with open("negative-words.txt", 'r') as f:
+        with open("train_data/negative-words.txt", 'r') as f:
             lines = f.readlines()
             lines = [line.strip() for line in lines]
 
@@ -109,4 +109,19 @@ class MultinomialNaiveBayesNH:
                 correct += 1
             total += 1
         return 1.0*correct/total
+
+    def save_model(self):
+        model = {
+            'n_words': self.n_words,
+            'prior': self.prior,
+            'count': self.count,
+            'word_index': self.word_index,
+            'NW': self.NW
+        }
+
+        #save model except occur_count
+        with open('model/model.json', 'w') as f:
+            json.dump(model, f)
+        #save occur_count
+        np. savetxt('model/model.csv', self.occur_count, delimiter=',')
             

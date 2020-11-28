@@ -59,13 +59,14 @@ def build_dicts():
     builds feature dictionaries
     ''' 
     #set the test size
-    test_size = 10000
+    test_size = 14000
     feat_counts = {}
     col_list = ["tweet"]
+    folder = "train_data/"
     files_to_red = ["twitter_improve_positive.csv", "twitter_improve_negative.csv", "test_improve_positive.csv", "test_improve_negative.csv"]
     # build feature dictionary with counts
     nr_pos = 0
-    pos_file = pd.read_csv(files_to_red[0], usecols=col_list)
+    pos_file = pd.read_csv(folder+files_to_red[0], usecols=col_list)
     for line in pos_file["tweet"]:
         toks = line.split(" ")
         nr_pos += 1
@@ -78,7 +79,7 @@ def build_dicts():
             feat_counts[name] += int(counts)
     
     nr_neg = 0
-    neg_file = pd.read_csv(files_to_red[1], usecols=col_list)
+    neg_file = pd.read_csv(folder+files_to_red[1], usecols=col_list)
     for line in pos_file["tweet"]:
         toks = line.split(" ")
         nr_neg += 1
@@ -115,7 +116,7 @@ def build_dicts():
     # print("X:", X.shape)
     # print("y:", y.shape)
 
-    pos_file = pd.read_csv(files_to_red[0], usecols=col_list)
+    pos_file = pd.read_csv(folder+files_to_red[0], usecols=col_list)
     nr_pos = 0
     for line in pos_file["tweet"]:
         if nr_pos >= test_size:
@@ -127,7 +128,7 @@ def build_dicts():
                 X[nr_pos,feat_dict[name]] = int(counts)
         nr_pos += 1
     
-    neg_file = pd.read_csv(files_to_red[1], usecols=col_list)
+    neg_file = pd.read_csv(folder+files_to_red[1], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
         if nr_neg >= test_size:
@@ -141,7 +142,7 @@ def build_dicts():
     
     X_NH = []
 
-    pos_file = pd.read_csv(files_to_red[2], usecols=col_list)
+    pos_file = pd.read_csv(folder+files_to_red[2], usecols=col_list)
     nr_pos = 0
     for line in pos_file["tweet"]:
         #print(line)
@@ -151,7 +152,7 @@ def build_dicts():
         X_NH.append(toks)
         nr_pos += 1
 
-    neg_file = pd.read_csv(files_to_red[3], usecols=col_list)
+    neg_file = pd.read_csv(folder+files_to_red[3], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
         if nr_neg >= test_size:

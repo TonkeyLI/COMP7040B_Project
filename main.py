@@ -39,7 +39,8 @@ if __name__ == '__main__':
     print("Model created")
     nbNH.train(dataset.train_X, dataset.train_y, dataset.feat_dict)
     print("train completed")
-
+    nbNH.save_model()
+    print("model saved")
     predict_train = nbNH.test(dataset.train_X_NH)
     eval_train = nbNH.evaluate(predict_train, dataset.train_y)
     print("Evaluate train completed")
