@@ -61,7 +61,7 @@ class MultinomialNaiveBayesNH:
         lines = []
         with open("negative-words.txt", 'r') as f:
             lines = f.readlines()
-            lines = [line[0:len(line)-2] for line in lines]
+            lines = [line.strip() for line in lines]
 
         self.trained = True
         self.n_words = n_words
@@ -83,15 +83,22 @@ class MultinomialNaiveBayesNH:
         return prediction
     
     def calculate(self, tweet, c):
+        p_total=[]
         p = 0
         for i in range(len(tweet)):
             if tweet[i] in self.word_index:
-                f = self.occur_count[self.word_index[tweet[i]]][c]
                 if i > 0 and tweet[i-1] in self.NW:
-                    #print("found words in NW!!!!!")
-                    p -= (float(f)+1)/(float(self.count[c])+self.n_words)
+                    f = self.occur_count[self.word_index[tweet[i]]][1-c]
+                    #p = (float(f)+1)/(float(self.count[1-c])+self.n_words)
+                    p = float(f)/self.count[1-c]
                 else:
-                    p += (float(f)+1)/(float(self.count[c])+self.n_words)
+                    f = self.occur_count[self.word_index[tweet[i]]][c]
+                    #p = (float(f)+1)/(float(self.count[c])+self.n_words)
+                    p = float(f)/self.count[c]
+                p_total.append(p)
+        p = 1
+        for i in p_total:
+            p = p*i
         return p * self.prior[c]
 
     def evaluate(self, truth, predicted):
