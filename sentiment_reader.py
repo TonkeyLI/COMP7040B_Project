@@ -60,6 +60,7 @@ def build_dicts():
     ''' 
     #set the test size
     test_size = 20000
+    remove_word_count = 5 # if feature count less than this, remove it 
     feat_counts = {}
     col_list = ["tweet"]
     folder = "train_data/"
@@ -92,12 +93,12 @@ def build_dicts():
             feat_counts[name] += int(counts)
 
     # remove all features that occur less than 5 (threshold) times
-    # to_remove = []
-    # for key, value in feat_counts.items():
-    #     if value < 5:
-    #         to_remove.append(key)
-    # for key in to_remove:
-    #     del feat_counts[key]
+    to_remove = []
+    for key, value in feat_counts.items():
+        if value < remove_word_count:
+            to_remove.append(key)
+    for key in to_remove:
+        del feat_counts[key]
 
     # map feature to index
     feat_dict = {}

@@ -65,7 +65,7 @@ class MultinomialNaiveBayesNH:
         for t in tweets:
             p_pos = self.calculate(t, 0)   
             p_neg = self.calculate(t, 1)
-            if p_pos >= p_neg:
+            if p_pos > p_neg:
                 prediction.append(0)
             else:
                 prediction.append(1)
@@ -106,6 +106,8 @@ class MultinomialNaiveBayesNH:
         p = 0
         for i in range(len(tweet)):
             word_count = self.find_word_count(tweet[i], c)
+            #if tweet[i] in self.NW:
+                #continue
             if i > 0 and tweet[i-1] in self.NW:
                 p = float(word_count)/self.count[c]
                 p_total += math.log(p)
