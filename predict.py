@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import json
 from multinomial_naive_bayesNH import MultinomialNaiveBayesNH
+import matplotlib.pyplot as plt
+
 
 time_internal=1
 
@@ -125,6 +127,84 @@ def create_model(model,occur_count):
 
 
 
+def calculate_percent(predict_list):
+    resultlist=[]
+    for predict in predict_list:
+        count_neg=0
+        count_pos=1
+        for i in predict:
+            if i==1:
+                count_neg+=1
+            elif i==0:
+                count_pos+=1
+        count_total=count_pos+count_neg
+        count_total=float(count_total)
+        count_neg=float(count_neg)
+        count_percent=count_neg/count_total
+
+        temp=[]
+        temp.append(predict[0])
+        temp.append(count_percent)
+        resultlist.append(temp)
+    return resultlist
+
+
+def calculate_cumulative(predict_list):
+    resultlist=[]
+    count_neg = 0
+    count_pos = 0
+    for predict in predict_list:
+        for i in predict:
+            if i==1:
+                count_neg+=1
+            elif i==0:
+                count_pos+=1
+        count_total=count_pos+count_neg
+        temp=[]
+        temp.append(predict[0])
+        temp.append(count_pos)
+        temp.append(count_neg)
+        temp.append(count_total)
+        resultlist.append(temp)
+    return resultlist
+
+def plot_graph(data_list):
+    x=[]
+    y_pos=[]
+    y_neg=[]
+    y_total=[]
+    count=len(data_list)-1
+    while count>=0:
+        x.append(data_list[count][0])
+        y_pos.append(data_list[count][1])
+        y_neg.append(data_list[count][2])
+        y_total.append(data_list[count][3])
+        count-=1
+        '''
+    for data in data_list:
+        x.append(data[0])
+        y_pos.append(data[1])
+        y_neg.append(data[2])
+        y_total.append(data[3])
+    '''
+    x_axis=[]
+    for i in range (0,len(x)):
+        x_axis.append(i)
+    pos_reverse=Reverse(y_pos)
+    neg_reserse=Reverse(y_neg)
+    total_reserse=Reverse(y_total)
+    plt.plot(x_axis,pos_reverse,label="Positive Sentiments")
+    plt.plot(x_axis,neg_reserse,label="Negative Sentiments")
+    plt.plot(x_axis,total_reserse, label="Total Sentiments")
+    plt.xlabel('Days')
+    plt.ylabel('Cumulative Numbers of Sentiments')
+    plt.title("(From 01-04-2020 to 30-06-2020)")
+    plt.legend(loc='upper left')
+    plt.show()
+
+
+def Reverse(lst):
+    return [ele for ele in reversed(lst)]
 
 
 
@@ -149,7 +229,9 @@ def main():
     for predict in predict_list:
         predict.insert(0,date_list[date_index])
         date_index+=1
-    print predict_list
+    #print predict_list
+    cal=calculate_cumulative(predict_list)
+    plot_graph(cal)
 
 if __name__ == '__main__':
     main()
