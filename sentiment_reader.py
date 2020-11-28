@@ -59,7 +59,7 @@ def build_dicts():
     builds feature dictionaries
     ''' 
     #set the test size
-    test_size = 14000
+    test_size = 20000
     feat_counts = {}
     col_list = ["tweet"]
     folder = "train_data/"
@@ -110,7 +110,6 @@ def build_dicts():
     nr_instances = nr_pos + nr_neg
     X = np.zeros((nr_instances, nr_feat), dtype=float)
     y = np.vstack((np.zeros([nr_pos,1], dtype=int), np.ones([nr_neg,1], dtype=int)))
-    X_NH = np.empty(())
     # print("nr_feat:", nr_feat)
     # print("nr_instances:", nr_instances)
     # print("X:", X.shape)
