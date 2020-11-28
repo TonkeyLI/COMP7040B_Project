@@ -1,5 +1,6 @@
 no
 not
+nor
 none
 nobody
 nothing
@@ -11,6 +12,8 @@ scarcely
 barely
 doesn't
 doesnot
+didn't
+didnot
 isn't
 isnot
 wasn't
@@ -26,3 +29,11 @@ can't
 cannot
 don't
 donot
+ain't      
+hasn't           
+shan't  
+weren't  
+aren't
+mightn't
+mustn't 
+hadn't

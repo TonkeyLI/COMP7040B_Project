@@ -47,7 +47,7 @@ class MultinomialNaiveBayesNH:
 
         #load negation words
         lines = []
-        with open("train_data/negative-words.txt", 'r') as f:
+        with open("train_data/negation_words.txt", 'r') as f:
             lines = f.readlines()
             lines = [line.strip() for line in lines]
 
@@ -100,17 +100,17 @@ class MultinomialNaiveBayesNH:
     #     for i in p_total:
     #         p = p*i
     #     return p * self.prior[c]
-
+    
     def calculate(self, tweet, c):
         p_total = math.log(self.prior[c])
         p = 0
         for i in range(len(tweet)):
             word_count = self.find_word_count(tweet[i], c)
-            #if tweet[i] in self.NW:
-                #continue
+            if tweet[i] in self.NW:
+                continue
             if i > 0 and tweet[i-1] in self.NW:
                 p = float(word_count)/self.count[c]
-                p_total += math.log(p)
+                p_total -= math.log(p)
             else:
                 p = float(word_count)/self.count[c]
                 p_total += math.log(p)

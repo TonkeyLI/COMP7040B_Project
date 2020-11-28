@@ -73,8 +73,9 @@ def build_dicts():
         nr_pos += 1
         if nr_pos >= test_size:
             break
-        for feat in toks[0:-1]:
+        for feat in toks:
             name, counts = feat.split(":")
+            name.replace('\'', '')
             if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
@@ -86,8 +87,9 @@ def build_dicts():
         nr_neg += 1
         if nr_neg >= test_size:
             break
-        for feat in toks[0:-1]:
+        for feat in toks:
             name, counts = feat.split(":")
+            name.replace('\'', '')
             if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
@@ -111,10 +113,6 @@ def build_dicts():
     nr_instances = nr_pos + nr_neg
     X = np.zeros((nr_instances, nr_feat), dtype=float)
     y = np.vstack((np.zeros([nr_pos,1], dtype=int), np.ones([nr_neg,1], dtype=int)))
-    # print("nr_feat:", nr_feat)
-    # print("nr_instances:", nr_instances)
-    # print("X:", X.shape)
-    # print("y:", y.shape)
 
     pos_file = pd.read_csv(folder+files_to_red[0], usecols=col_list)
     nr_pos = 0
@@ -122,7 +120,7 @@ def build_dicts():
         if nr_pos >= test_size:
             break
         toks = line.split(" ")
-        for feat in toks[0:-1]:
+        for feat in toks:
             name, counts = feat.split(":")
             if name in feat_dict:
                 X[nr_pos,feat_dict[name]] = int(counts)
@@ -134,7 +132,7 @@ def build_dicts():
         if nr_neg >= test_size:
             break
         toks = line.split(" ")
-        for feat in toks[0:-1]:
+        for feat in toks:
             name, counts = feat.split(":")
             if name in feat_dict:
                 X[nr_pos+nr_neg,feat_dict[name]] = int(counts)
