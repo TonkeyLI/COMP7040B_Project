@@ -131,7 +131,7 @@ class MultinomialNaiveBayesNH:
         #print("increase!!!!!!!!!!!!!!!!!!!!!!")
         for t in tweet:
             if t in self.word_index:
-                self.weight[self.word_index[t]] += self.learning_rate
+                self.weight[self.word_index[t]] += self.learning_rate9
 
     def decrese_weight(self, tweet):
         #print("decrease!!!!!!!!!!!!!!!!!!!!!!")

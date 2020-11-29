@@ -5,7 +5,7 @@ from sentiment_reader import SentimentCorpus
 from multinomial_naive_bayes import MultinomialNaiveBayes
 from multinomial_naive_bayesNH import MultinomialNaiveBayesNH
 from sklearn.metrics import classification_report, confusion_matrix
-from package_model import Package_model
+#from package_model import Package_model
 
 if __name__ == '__main__':
 
