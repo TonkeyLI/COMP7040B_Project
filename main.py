@@ -9,9 +9,9 @@ from package_model import Package_model
 
 if __name__ == '__main__':
 
-    print("Train using package")
-    p  = Package_model()
-    p.train_test()
+    #print("Train using package")
+    #p  = Package_model()
+    #p.train_test()
 
     print("load dataset")
     dataset = SentimentCorpus() # to do
