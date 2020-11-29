@@ -59,7 +59,7 @@ def build_dicts():
     builds feature dictionaries
     ''' 
     #set the test size
-    test_size = 20000
+    test_size = 30000
     remove_word_count = 5 # if feature count less than this, remove it 
     feat_counts = {}
     col_list = ["tweet"]

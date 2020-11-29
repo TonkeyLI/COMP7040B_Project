@@ -61,6 +61,13 @@ class MultinomialNaiveBayesNH:
             positive_words = f.readlines()
             positive_words = [line.strip() for line in positive_words]
 
+        # self.weight = [1.0 for i in range(n_words)]
+        # for key in feat_dict.keys():
+        #     if key in positive_words or key in negative_words:
+        #         self.weight[feat_dict[key]] *= 100
+
+        # self.learning_rate = 0.5
+        # print(self.weight)
         self.trained = True
         self.n_words = n_words
         self.prior = prior
@@ -72,24 +79,68 @@ class MultinomialNaiveBayesNH:
         self.negative_words = negative_words
         #self.likelihood = likelihood
 
-    def test(self, tweets):
+    def test_train(self, tweets, truth):
         prediction = []
         #support_count = 0
-        for t in tweets:
-            p_pos = self.calculate(t, 0)   
-            p_neg = self.calculate(t, 1)
-            if p_pos == 0:
-                prediction.append(0)
-                #support_count += 1
-            elif p_neg == 1:
-                prediction.append(1)
-                #support_count += 1
-            elif p_pos > p_neg:
-                prediction.append(0)
+        for i in range(len(tweets)):
+            result = 0
+            p_pos = self.calculate(tweets[i], 0)   
+            p_neg = self.calculate(tweets[i], 1)
+            if p_pos > p_neg:
+                result = 0
             else:
-                prediction.append(1)
+                result = 1
+
+            if result == truth[i]:
+                self.increse_weight(tweets[i])
+            else:
+                self.decrese_weight(tweets[i])
+            #prediction.append(result)
         #print("support count:", support_count)
+        #return prediction
+        # for i in self.weight:
+        #     print(i)
+
+    def test(self, tweets):
+        prediction = []
+        for i in range(len(tweets)):
+            result = 0
+            p_pos = self.calculate(tweets[i], 0)   
+            p_neg = self.calculate(tweets[i], 1)
+            if p_pos > p_neg:
+                result = 0
+            else:
+                result = 1
+            prediction.append(result)
         return prediction
+
+    def test_predict(self, tweets):
+        prediction = []
+        for i in range(len(tweets)):
+            result = 0
+            p_pos = self.calculate_predict(tweets[i], 0)   
+            p_neg = self.calculate_predict(tweets[i], 1)
+            if p_pos > p_neg:
+                result = 0
+            else:
+                result = 1
+            prediction.append(result)
+        return prediction
+
+    def increse_weight(self, tweet):
+        #print("increase!!!!!!!!!!!!!!!!!!!!!!")
+        for t in tweet:
+            if t in self.word_index:
+                self.weight[self.word_index[t]] += self.learning_rate
+
+    def decrese_weight(self, tweet):
+        #print("decrease!!!!!!!!!!!!!!!!!!!!!!")
+        for t in tweet:
+            if t in self.word_index:
+                self.weight[self.word_index[t]] -= self.learning_rate    
+                if self.weight[self.word_index[t]] < 0:
+                    self.weight[self.word_index[t]] = self.learning_rate  
+    
     #multiply
     # def calculate(self, tweet, c):
     #     p_total = []
@@ -100,9 +151,13 @@ class MultinomialNaiveBayesNH:
     #         #     continue
     #         if i > 0 and tweet[i-1] in self.NW:
     #             p = float(word_count)/self.count[1-c]
+    #             if tweet[i] in self.word_index:
+    #                 p *= self.weight[self.word_index[tweet[i]]]
     #             p_total.append(p)
     #         else:
     #             p = float(word_count)/self.count[c]
+    #             if tweet[i] in self.word_index:
+    #                 p *= self.weight[self.word_index[tweet[i]]]
     #             p_total.append(p)
     #     p = 1
     #     for i in p_total:
@@ -112,25 +167,9 @@ class MultinomialNaiveBayesNH:
     def calculate(self, tweet, c):
         p_total = math.log(self.prior[c])
         p = 0
-        # positive_count = 0
-        # negative_count = 0
-        # threshold = 6
-        # for i in range(len(tweet)):
-        #     if tweet[i] in self.positive_words:
-        #         positive_count += 1
-        #     elif tweet[i] in self.negative_words:
-        #         negative_count += 1
-
-        # if positive_count - negative_count >= threshold:
-        #     #print("too many positive words, classify as positive")
-        #     return 0
-        # elif negative_count - positive_count >= threshold:
-        #     #print("too many negative words, classify as negative")
-        #     return 1
-        hasNW = False
+        #hasNW = False
         for i in range(len(tweet)):
             word_count = self.find_word_count(tweet[i], c)
-            #if i > 0 and hasNW and (tweet[i] in self.positive_words or tweet[i] in self.negative_words):
             if i > 0 and tweet[i-1] in self.NW:
                 p = float(word_count)/self.count[1-c]
                 p_total += math.log(p)
@@ -138,10 +177,28 @@ class MultinomialNaiveBayesNH:
             else:
                 p = float(word_count)/self.count[c]
                 p_total += math.log(p)
-
             # if tweet[i] in self.NW:
             #     hasNW = True
         return p_total 
+
+    def calculate_predict(self, tweet, c):
+        p_total=[]
+        p = 0
+        for i in range(len(tweet)):
+            if tweet[i] in self.word_index:
+                if i > 0 and tweet[i-1] in self.NW:
+                    f = self.occur_count[self.word_index[tweet[i]]][1-c]
+                    #p = (float(f)+1)/(float(self.count[1-c])+self.n_words)
+                    p = float(f)/self.count[1-c]
+                else:
+                    f = self.occur_count[self.word_index[tweet[i]]][c]
+                    #p = (float(f)+1)/(float(self.count[c])+self.n_words)
+                    p = float(f)/self.count[c]
+                p_total.append(p)
+        p = 1
+        for i in p_total:
+            p = p*i
+        return p * self.prior[c]
 
     def find_word_count(self, word, c):
         result = 0

@@ -209,7 +209,7 @@ def Reverse(lst):
 
 
 def main():
-    print "working"
+    print ("working")
 
     data,occur_count=load_model('model/model.json','model/model.csv')
     nbnh=create_model(data,occur_count)
@@ -222,7 +222,7 @@ def main():
     for tweet in tweet_list:
         test_data=analyze_data(tweet)
     #print test_data
-        predict_test=nbnh.test(test_data)
+        predict_test=nbnh.test_predict(test_data)
         predict_list.append(predict_test)
         #print predict_test
     date_index=0
