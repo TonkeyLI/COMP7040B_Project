@@ -67,15 +67,24 @@ def build_dicts():
     files_to_red = ["twitter_improve_positive.csv", "twitter_improve_negative.csv", "test_improve_positive.csv", "test_improve_negative.csv"]
     # build feature dictionary with counts
     nr_pos = 0
+    #leng = 0
     pos_file = pd.read_csv(folder+files_to_red[0], usecols=col_list)
     for line in pos_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
+        line.replace("\'", "")
         toks = line.split(" ")
         nr_pos += 1
         if nr_pos >= test_size:
             break
+        #leng += len(toks)
         for feat in toks:
             name, counts = feat.split(":")
             name.replace('\'', '')
+            if len(name) <= 1:
+                continue
             if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
@@ -83,17 +92,25 @@ def build_dicts():
     nr_neg = 0
     neg_file = pd.read_csv(folder+files_to_red[1], usecols=col_list)
     for line in pos_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
+        line.replace("\'", "")
         toks = line.split(" ")
         nr_neg += 1
         if nr_neg >= test_size:
             break
+        #leng += len(toks)
         for feat in toks:
             name, counts = feat.split(":")
             name.replace('\'', '')
+            if len(name) <= 1:
+                continue
             if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
-
+    #print("average lenth:", leng/40000)
     # remove all features that occur less than 5 (threshold) times
     to_remove = []
     for key, value in feat_counts.items():
@@ -108,6 +125,7 @@ def build_dicts():
     for key in feat_counts.keys():
         feat_dict[key] = i
         i += 1
+        #print(key)
 
     nr_feat = len(feat_counts) 
     nr_instances = nr_pos + nr_neg
@@ -117,8 +135,13 @@ def build_dicts():
     pos_file = pd.read_csv(folder+files_to_red[0], usecols=col_list)
     nr_pos = 0
     for line in pos_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
         if nr_pos >= test_size:
             break
+        line.replace("\'", "")
         toks = line.split(" ")
         for feat in toks:
             name, counts = feat.split(":")
@@ -129,8 +152,13 @@ def build_dicts():
     neg_file = pd.read_csv(folder+files_to_red[1], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
         if nr_neg >= test_size:
             break
+        line.replace("\'", "")
         toks = line.split(" ")
         for feat in toks:
             name, counts = feat.split(":")
@@ -143,7 +171,12 @@ def build_dicts():
     pos_file = pd.read_csv(folder+files_to_red[2], usecols=col_list)
     nr_pos = 0
     for line in pos_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
         #print(line)
+        line.replace("\'", "")
         if nr_pos >= test_size:
             break
         toks = str(line).split(" ")
@@ -153,6 +186,11 @@ def build_dicts():
     neg_file = pd.read_csv(folder+files_to_red[3], usecols=col_list)
     nr_neg = 0
     for line in neg_file["tweet"]:
+        if type(line) is type(1.0):
+            continue
+        if "\"" in line:
+            continue
+        line.replace("\'", "")
         if nr_neg >= test_size:
             break
         toks = str(line).split(" ")

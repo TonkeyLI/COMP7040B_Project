@@ -9,8 +9,9 @@ from package_model import Package_model
 
 if __name__ == '__main__':
 
-    #print("Train using package")
-    #Package_model.train_test()
+    print("Train using package")
+    p  = Package_model()
+    p.train_test()
 
     print("load dataset")
     dataset = SentimentCorpus() # to do
@@ -39,8 +40,8 @@ if __name__ == '__main__':
     print("Model created")
     nbNH.train(dataset.train_X, dataset.train_y, dataset.feat_dict)
     print("train completed")
-    # nbNH.save_model()
-    # print("model saved")
+    nbNH.save_model()
+    print("model saved")
     predict_train = nbNH.test(dataset.train_X_NH)
     eval_train = nbNH.evaluate(predict_train, dataset.train_y)
     print("Evaluate train completed")
