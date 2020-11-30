@@ -77,7 +77,7 @@ The file does the webscraping by using Twitter's public API to fetch tweets with
 
 3.tweet_improve.py
 
-> python ./twweet_improve.py
+> python ./twwet_improve.py
 
 ### Results
 [![Result](https://iili.io/FwNvBS.md.png)](https://freeimage.host/i/FwNvBS)
