@@ -88,3 +88,5 @@ The file does the webscraping by using Twitter's public API to fetch tweets with
 * Potential positive relationship between the negative sentiments and COVID-19 infections.
 * Simple Naives Bayes Model can be further improved by including negation words and weightings.
 
+### Reference
+* HKU 2020-2021 1st term COMP7404B Assignment3
